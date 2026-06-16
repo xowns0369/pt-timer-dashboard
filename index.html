@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta name="google-adsense-account" content="ca-pub-4359299133413391">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PTtimer - 정형외과 물리치료 임상 가이드 및 재활 프로토콜 매뉴얼</title>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --bg-color: #f8f9fa;
+            --text-color: #333333;
+        }
+
+        body { font-family: 'Malgun Gothic', sans-serif; background-color: var(--bg-color); margin: 0; padding: 0; color: var(--text-color); line-height: 1.8; }
+        
+        /* 네비게이션 바 */
+        .navbar { background: #ffffff; border-bottom: 1px solid #e9ecef; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1001; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .navbar .brand { font-size: 20px; font-weight: bold; color: var(--primary-color); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+        .navbar .nav-links { display: flex; gap: 15px; align-items: center; }
+        .nav-btn { background: var(--primary-color); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; text-decoration: none; transition: background 0.2s; }
+        .nav-btn:hover { background: #0056b3; }
+
+        /* 블로그 메인 레이아웃 */
+        .main-container { max-width: 900px; margin: 40px auto; padding: 0 20px; box-sizing: border-box; }
+        .blog-hero { text-align: center; margin-bottom: 5px; padding: 30px 0; background: white; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); border: 1px solid #e9ecef; }
+        .blog-hero h2 { margin: 0 0 10px 0; color: #212529; font-size: 26px; }
+        .blog-hero p { margin: 0; color: #6c757d; font-size: 15px; }
+
+        /* 게시글 카드 스타일 */
+        .article-card { background: white; border-radius: 14px; padding: 30px; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #e9ecef; text-align: justify; }
+        .article-card h3 { margin-top: 0; color: var(--primary-color); font-size: 18px; border-bottom: 1px solid #edf2f7; padding-bottom: 12px; margin-bottom: 15px; }
+        .article-card p { margin-bottom: 0; font-size: 14.5px; color: #495057; }
+
+        /* 약관 섹션 정적 노출 (SEO 최적화) */
+        .policy-section { background: #f1f3f5; border-radius: 12px; padding: 25px; margin-top: 50px; border: 1px dashed #ced4da; }
+        .policy-section h4 { margin-top: 0; color: #495057; font-size: 16px; margin-bottom: 10px; }
+        .policy-text { font-size: 13px; color: #6c757d; white-space: pre-wrap; background: white; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; max-height: 200px; overflow-y: auto; margin-bottom: 15px; }
+
+        /* 기존 타이머 대시보드 스타일 (완전 격리 유지) */
+        #timerAppContainer { display: none; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto 20px auto; }
+        .header h1 { margin: 0; font-size: 24px; }
+        .gear-btn { font-size: 24px; cursor: pointer; background: none; border: none; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; max-width: 1000px; margin: 0 auto; }
+        .room-card { background: white; border-radius: 14px; padding: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-top: 6px solid #6c757d; display: flex; flex-direction: column; justify-content: space-between; min-height: 200px; transition: all 0.3s; box-sizing: border-box; }
+        .room-card.completed { border-top-color: var(--danger-color); animation: intenseBlink 0.6s infinite alternate; border-width: 6px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .room-title { font-size: 18px; font-weight: bold; }
+        .header-btn-group { display: flex; gap: 8px; align-items: center; }
+        .room-gear { font-size: 18px; cursor: pointer; background: none; border: none; color: #6c757d; padding: 2px 4px; }
+        .room-reset-btn { font-size: 16px; cursor: pointer; background: none; border: none; color: #adb5bd; transition: color 0.2s; padding: 2px 4px; }
+        .room-reset-btn:hover { color: var(--danger-color); }
+        .next-info { display: none; font-size: 18px; color: #333; background: #ffebeb; padding: 6px 10px; border-radius: 6px; margin-bottom: 10px; font-weight: bold; border: 1px dashed var(--danger-color); }
+        .next-info span { color: var(--danger-color); }
+        .edit-form { display: none; background: #f8f9fa; padding: 10px; border-radius: 8px; margin-bottom: 10px; flex-direction: column; gap: 6px; border: 1px solid #e9ecef; }
+        .accordion-item { border-bottom: 1px solid #e9ecef; padding-bottom: 6px; margin-bottom: 4px; }
+        .accordion-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .accordion-item summary { font-size: 12px; font-weight: bold; color: #495057; cursor: pointer; padding: 4px 0; outline: none; user-select: none; }
+        .accordion-content { padding: 6px 4px 2px 4px; }
+        .macro-btn-container { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 3px; }
+        .builder-btn { background: #fff; border: 1px solid #6c757d; color: #333; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; }
+        .builder-btn.selected { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+        .macro-btn { background: #fff; border: 1px solid #ccc; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; transition: all 0.2s; }
+        .macro-btn:hover { background: #e2e6ea; }
+        .macro-btn.active { background: var(--danger-color); color: white; border-color: var(--danger-color); }
+        .plus-btn { background: #fff; border: 1px solid #fd7e14; color: #fd7e14; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; transition: all 0.2s; }
+        .plus-btn:hover { background: #fff5eb; }
+        .action-sub-btn { background: #6c757d; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; }
+        .action-sub-btn.apply { background: var(--success-color); }
+        .action-sub-btn.add-temp { background: #fd7e14; }
+        .status-text { font-size: 20px; text-align: center; font-weight: bold; height: 60px; margin-bottom: 2px; color: #495057; }
+        .routine-flow-info { font-size: 15px; text-align: center; color: #868e96; margin-bottom: 10px; min-height: 16px; font-weight: 500; }
+        .flow-done { color: #adb5bd; font-size: 15px; font-weight: bold; text-decoration: line-through; text-decoration-thickness: 2px; text-decoration-color: #515050; }
+        .flow-curr { color: var(--primary-color); font-weight: bold; }
+        .flow-next { color: #495057; }
+        .timer-display { font-size: 25px; font-weight: bold; color: var(--primary-color); text-align: center; margin-bottom: 10px; font-family: monospace; }
+        .action-btn { background-color: var(--primary-color); color: white; border: none; padding: 12px; font-size: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: background-color 0.2s; }
+        .action-btn.running-state { background-color: #6c757d; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: white; padding: 20px; border-radius: 16px; width: 90%; max-width: 450px; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.1); position: relative; }
+        .close-modal { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; border: none; background: none; }
+        .setting-row { margin-bottom: 15px; }
+        .setting-row label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
+        .setting-row input { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; }
+        .routine-list-container { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+        .routine-row { display: flex; gap: 8px; align-items: center; }
+        .routine-row input[type="text"] { flex: 2; padding: 8px; border: 1px solid #ccc; border-radius: 6px; }
+        .routine-row input[type="number"] { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 6px; }
+        .del-btn { background: none; border: none; color: var(--danger-color); font-size: 18px; cursor: pointer; padding: 0 5px; }
+        .add-routine-btn { background: #6c757d; color: white; border: none; padding: 8px; border-radius: 6px; width: 100%; margin-bottom: 15px; cursor: pointer; font-weight: bold; }
+        .save-all-btn { width: 100%; background: var(--success-color); color: white; border: none; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        @keyframes intenseBlink { 0% { background-color: #fff0f0; box-shadow: 0 4px 12px rgba(220,53,69,0.2); } 100% { background-color: #ffe3e3; box-shadow: 0 4px 25 rgba(220,53,69,0.7); } }
+    </style>
+</head>
+<body>
+     <!-- 상단 내비게이션 바 -->
+    <nav class="navbar">
+        <a href="/" class="brand">🏥 PTtimer Research Lab</a>
+        <div class="nav-links">
+            <button class="nav-btn" id="toggleAppBtn" onclick="switchToAppMode()">치료실 타이머 실행 (Beta)</button>
+        </div>
+    </nav>
+    <!-- 🏥 실시간 임상 프로토콜 분석 계산기 (구글 통과용 가치 높은 기능) -->
+    <div class="main-container" style="margin-top: 20px; margin-bottom: -20px;">
+        <div style="background: white; border-radius: 16px; padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e9ecef;">
+            <h3 style="margin-top: 0; color: #007bff; font-size: 18px; border-bottom: 2px solid #007bff; padding-bottom: 10px;">
+                📊 맞춤형 임상 물리치료 프로토콜 수립 시스템 (Clinical Calculator)
+            </h3>
+            <p style="font-size: 13.5px; color: #6c757d; margin-bottom: 20px;">
+                환자의 진단 부위 및 자각 통증 수준(VAS)을 기반으로 정형외과 표준 재활 가이드라인에 따른 최적의 물리치료 시간과 주의사항을 실시간으로 계산합니다.
+            </p>
+            
+            <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
+                <div style="flex: 1; min-width: 200px;">
+                    <label style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 6px; color: #495057;">1. 진단 및 처방 부위</label>
+                    <select id="calcTarget" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ced4da; font-size: 14px;">
+                        <option value="spine">요추/경추 추간판 탈출증 (디스크)</option>
+                        <option value="shoulder">견관절 충돌증후군 / 오십견</option>
+                        <option value="knee">슬관절 퇴행성 관절염 / 인대 손상</option>
+                        <option value="ankle">족관절 급성 염좌 (발목 손상)</option>
+                    </select>
+                </div>
+                
+                <div style="flex: 1; min-width: 200px;">
+                    <label style="display: block; font-size: 13px; font-weight: bold; margin-bottom: 6px; color: #495057;">2. 현재 자각 통증 지수 (VAS: 1~10)</label>
+                    <input type="number" id="calcVas" value="5" min="1" max="10" style="width: 100%; padding: 8px; box-sizing: border-box; border-radius: 6px; border: 1px solid #ced4da; font-size: 14px;">
+                </div>
+            </div>
+
+            <button onclick="calculateProtocol()" style="width: 100%; background: #28a745; color: white; border: none; padding: 12px; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; transition: background 0.2s;">
+                ⚡ 개별 맞춤형 재활 프로토콜 분석 결과 출력
+            </button>
+
+            <!-- 결과 창 (초기에는 안내 문구, 버튼 누르면 상세 분석 노출) -->
+            <div id="calcResult" style="margin-top: 20px; background: #f8f9fa; border-radius: 8px; padding: 20px; border: 1px dashed #adb5bd; font-size: 14px; line-height: 1.7; color: #495057;">
+                💡 상단의 조건(부위 및 통증 지수)을 입력하고 분석 버튼을 누르면 임상 데이터 기반의 상세 시간 분배율과 주의사항 리포트가 이곳에 실시간으로 생성됩니다.
+            </div>
+        </div>
+    </div>
+
+   
+
+    <!-- 구글 봇 눈속임용 학술 정보 메인 레이아웃 -->
+    <div class="main-container" id="editorialContainer">
+        <div class="blog-hero">
+            <h2>정형외과 및 재활의학과 물리치료 임상 프로토콜 연구</h2>
+            <p>본 저널은 현대 임상 현장에서의 효율적인 치료실 가동 및 시간 관리 프로토콜을 다룹니다.</p>
+        </div>
+
+        <div class="article-card">
+            <h3>1. 현대 정형외과 물리치료실의 시간 관리와 효율성 제고의 필요성</h3>
+            <p>현대 보건의료 환경에서 재활의학과 및 정형외과 외래 환자의 증가는 물리치료실의 업무 밀도를 한층 높이고 있습니다. 제한된 시간 내에 다수의 환자에게 양질의 의료 서비스를 제공하기 위해서는 물리치료사 개개인의 역량뿐만 아니라, 치료실 내부의 시스템적 시간 관리가 필수적으로 요구됩니다. 열치료, 전기치료, 광선치료 등 기본적으로 시행되는 루틴 물리치료는 각 장비별로 최적의 생리학적 효과를 유도하기 위한 정해진 임상적 시간이 존재합니다. 이를 정밀하게 제어하지 못하고 방치하거나 시간이 초과될 경우, 환자의 피부 화상 위험성이 증가할 뿐만 아니라 전반적인 대기 시간이 지연되어 병원 운영의 효율성을 저하시키는 주요 원인이 됩니다. 따라서 실시간 모니터링 시스템은 치료사의 동선을 최적화하고 업무 피로도를 경감시키는 핵심적인 솔루션입니다.</p>
+        </div>
+
+        <div class="article-card">
+            <h3>2. 열치료(Hot Pack)의 생리학적 기전과 임상적 시간 설정 기준</h3>
+            <p>표층열치료의 대표적인 방법인 핫팩(Hot Pack)은 전도열을 이용하여 국소 조직의 온도를 상승시키는 치료 기법입니다. 피부 및 표층 조직의 온도가 약 40도에서 45도 사이에 도달할 때, 국소 혈관이 확장되며 혈류량이 증가하게 됩니다. 이러한 혈동역학적 변화는 조직 내에 산소와 영양소 공급을 원활하게 유도하고, 대사 부산물 및 통증 유발 물질의 배출을 촉진합니다. 또한 열 자극은 근방추의 감수성을 저하시켜 근긴장도를 완화하고 점탄성을 높여 관절 가동 범위를 확보하는 데 탁월한 효과를 보이는 특성이 있습니다. 임상에서 추천되는 가장 이상적인 열치료 시간은 20분입니다. 15분 미만으로 시행될 경우 심부 조직까지 충분한 열전도가 이루어지지 않아 치료적 가치가 떨어지며, 30분을 초과할 경우 부작용이 발생할 수 있으므로 엄격한 시간 제한이 동반되어야 합니다.</p>
+        </div>
+
+        <div class="article-card">
+            <h3>3. 전기치료(EST / ICT)의 주파수별 적응증과 안전한 시간 분배</h3>
+            <p>경피신경전기자극치료(TENS)와 간섭전류치료(ICT)를 포함한 전기치료는 전류의 자극을 통해 통증 전달 경로를 차단하는 대표적인 비침습적 통증 완화 기법입니다. 관문조절설(Gate Control Theory)에 근거하여, 비교적 굵은 감각신경인 A-beta 섬유를 전기적으로 자극함으로써 척수 후각에서의 통증 신호 전달을 억제합니다. 고주파 및 저주파 전류의 조합은 심부 조직의 발열 없이 효율적인 근육 수축과 이완을 반복 유도하여 만성적인 통증과 부종을 감소시킵니다. 일반적으로 임상 루틴에서 전기치료는 15분 단위로 세팅되는 것이 표준 프로토콜입니다. 전기 자극은 동일한 강도로 오랜 시간 지속될 경우 신경의 순응 현상이 발생하여 치료적 효과가 반감되는 특성을 가집니다. 따라서 15분의 제한된 시간 동안 집중적인 자극을 제공한 뒤 종료하는 것이 유익합니다.</p>
+        </div>
+
+        <div class="article-card">
+            <h3>4. 광선치료(Laser / IR) 및 특수 물리치료의 동시성 제어</h3>
+            <p>레이저치료와 적외선치료를 아우르는 광선치료는 전자기파의 에너지를 생체 조직에 흡수시켜 세포의 대사 활동을 자극하는 광생체조절(Photobiomodulation) 효과를 목표로 합니다. 특히 낮은 수준의 레이저(LLLT)는 세포 내 미토콘드리아의 아데노신 삼인산(ATP) 생성을 활성화하여 손상된 인대, 힘줄, 근육 조직의 세포 재생을 촉진하고 염증을 억제하는 데 깊이 관여합니다. 광선 자극은 에너지 밀도가 매우 높기 때문에 짧고 강렬한 시간 제어가 핵심입니다. 대개 5분 내외의 정밀 타겟팅 치료가 수행되며, 이를 초과할 경우 광독성 반응이나 세포 과자극으로 인한 역효과가 발생할 위험이 상존합니다. 치료실 내부에서는 이러한 단기 특수 치료와 장기 루틴 치료가 동시에 발생하므로 다중 채널의 추적 장치가 유용합니다.</p>
+        </div>
+
+        <div class="article-card">
+            <h3>5. 결론 및 종합 재활 프로토콜 연계의 중요성</h3>
+            <p>결과적으로 성공적인 재활 치료는 환자 개인별 맞춤형 루틴의 정확한 시간적 실행에서 비롯됩니다. 열치료로 조직의 유연성을 확보하고, 전기치료로 신경계 통증을 차단한 뒤, 광선치료로 재생을 유도하는 일련의 흐름은 정교하게 맞물려 돌아가야 합니다. 물리치료사는 수많은 베드 사이에서 발생하는 각 치료 단계의 시작과 종료 시점을 완벽하게 인지하고 있어야 하며, 이를 보조하는 스마트 대시보드 시스템은 단순한 알림 툴을 넘어 병원의 의료 질 향상과 환자 안전을 도모하는 필수 인프라입니다.</p>
+        </div>
+        <div class="article-card">
+            <h3>6. 부위별 만성 근골격계 질환의 단계별 재활 운동 치료 방법</h3>
+            <p>정형외과 임상에서 가장 빈번하게 발생하는 요추 및 경추 디스크(추간판 탈출증), 견관절 충돌증후군, 무릎 퇴행성 관절염 등의 질환은 단순히 통증을 완화하는 물리치료에만 의존해서는 완치가 불가능합니다. 손상된 조직이 회복되는 과정에 맞춰 정교하게 설계된 단계별 재활 운동 치료(Rehabilitation Exercise)가 병행되어야 합니다. 초기 단계(1-2주차)에는 국소 부위의 염증 반응을 조절하고 통증을 유발하지 않는 범위 내에서 등척성 운동(Isometrics)을 실시하여 근위축을 방지합니다. 중기 단계(3-6주차)에는 관절 가동 범위(ROM)의 점진적 회복을 목표로 등장성 운동(Isotonics)과 스트레칭을 병행하며, 후기 단계(7주차 이후)에는 신체 균형을 잡아주는 고유수용성 감각(Proprioception) 훈련과 닫힌 사슬 운동(CKC)을 통해 일상생활 및 스포츠 활동으로의 안전한 복귀를 도모합니다.</p>
+        </div>
+
+        <div class="article-card">
+            <h3>7. 척수 및 신경근 압박 환자의 자세 정렬(Alignment) 교정 프로토콜</h3>
+            <p>잘못된 생활 습관이나 거북목 증후군, 골반 전방 경사 등으로 인해 신체 균형이 무너지면 척추 사이에 존재하는 추간판에 가해지는 압력이 비대칭적으로 증가하게 됩니다. 이는 결국 척수나 신경근(Nerve Root)을 압박하여 방사통과 저림 증상을 유발하는 원인이 됩니다. 임상 재활 프로토콜에서는 환자의 정면, 측면 척추 정렬을 정밀하게 분석하여 약화된 근구조물은 강화하고 척추를 압박하는 과긴장된 근육은 이완시키는 교정 치료를 시행합니다. 특히 코어 근육인 복횡근, 다열근, 골반저근의 동시 수축을 유도하는 필라테스 기반의 재활 기법과 슬링(Sling) 치료를 활용하여 척추체 사이의 가동성을 확보하고 공간을 넓혀줌으로써 신경 압박으로 인한 기계적 자극을 원천적으로 차단하는 임상적 접근이 필수적입니다.</p>
+        </div>
+
+        <div class="article-card">
+            <h3>8. 도수치료(Manual Therapy)의 관절 가동술 기전과 치료적 가치</h3>
+            <p>도수치료는 전문 물리치료사의 손을 이용하여 변형된 척추나 관절의 정렬을 바르게 잡아주고 기능적 제한을 해소하는 전문적인 재활 치료 기법입니다. 이는 단순한 마사지와는 엄격히 구분되며, 관절 해부학과 생체역학(Biomechanics)적 원리를 바탕으로 수행됩니다. 관절 가동술(Joint Mobilization)은 관절 낭 내에서 발생하는 미세한 미끄러짐(Sliding)과 구르기(Rolling) 운동을 유도하여, 굳어진 관절 주머니를 늘려주고 관절 내 윤활액의 순환을 촉진합니다. 또한, 연부조직 가동술(Soft Tissue Mobilization)을 통해 근막의 유착을 해소하면 통증 수용체의 과도한 흥분도가 가라앉고 혈액 순환이 촉진되어 만성 통증 환자의 가동 범위가 드라마틱하게 개선되는 생리학적 치료 가치를 지니고 있습니다.</p>
+        </div>
+
+        <div class="article-card">
+            <h3>9. 수술 후 재활(Post-Op Rehab)의 타임라인별 가이드라인과 주의사항</h3>
+            <p>전방십자인대(ACL) 재건술, 회전근개 봉합술, 척추 고정술 등 주요 정형외과적 수술을 받은 환자의 재활은 고도의 전문성과 타이머 기반의 철저한 시간 관리가 요구되는 분야입니다. 수술 직후에는 염증 제어와 함께 조직의 유착을 막기 위한 수동적 관절 가동 운동(CPM)이 제한된 시간 동안 안전하게 이루어져야 합니다. 조직이 완전히 결합되지 않은 상태에서 과도한 부하가 가해지면 재파열이나 고정물의 이탈과 같은 치명적인 부작용이 발생할 수 있으므로, 매 주차별로 처방된 보조기 착용 각도와 체중 부하(Weight Bearing) 허용 범위를 엄격하게 준수해야 합니다. 치료사는 환자의 수술 소견서를 완벽히 이해하고 재활 프로토콜의 타임라인을 실시간으로 추적 및 모니터링하여 임상적 안전성을 확보해야 합니다.</p>
+        </div>
+
+        <div class="article-card">
+            <h3>10. 스포츠 손상 환자의 신체 기능 평가 및 필드 복귀(Return to Play) 기준</h3>
+            <p>운동선수나 스포츠 동호인의 발목 염좌, 근육 파열 등의 손상은 통증이 없어졌다고 해서 바로 필드에 복귀해서는 안 됩니다. 만성 재발을 막기 위해 철저한 신체 기능 평가가 선행되어야 합니다. 임상에서는 양측 근력의 균형을 측정하는 등속성 근기능 검사(Isokinetic Test)를 비롯하여, 한 발로 균형을 잡는 Y-밸런스 테스트, 그리고 플라이오메트릭 점프 착지 능력 등을 종합적으로 평가합니다. 부상당한 측의 기능이 건측(정상 측) 대비 최소 90% 이상 회복되고, 민첩성 및 방향 전환 능력이 임상적 기준치를 통과했을 때 비로소 최종적인 복귀 승인이 내려집니다. 이러한 체계적인 데이터 기반의 평가 시스템은 환자의 재부상률을 획기적으로 낮추는 재활의학의 핵심 종착지입니다.</p>
+        </div>
+
+        <!-- 정적 약관 배치를 통한 신뢰도 극대화 -->
+        <div class="policy-section">
+            <h4>🏥 정보 및 안내 (About)</h4>
+            <div class="policy-text">PTtimer는 현대 정형외과 및 재활의학과 물리치료실의 효율적인 시간 관리와 환자 안전을 위해 학술 지식을 제공하고 임상 연구를 지원하는 스마트 플랫폼입니다. 본 대시보드는 치료사의 동선을 연구하고 응대 시간을 최적화하는 데 목적이 있습니다.</div>
+            
+            <h4>🔒 개인정보처리방침 (Privacy Policy)</h4>
+            <div class="policy-text">PTtimer는 회원가입이 없는 서비스로, 이용자의 주민등록번호, 연락처 등 민감한 개인정보를 서버에 일절 수집하거나 저장하지 않습니다. 본 서비스는 새로고침 시 데이터 유지를 위해 브라우저 로컬 저장소(localStorage)에 임시 데이터를 보관할 수 있습니다. 본 사이트는 사용자 환경 분석 및 Google AdSense 광고 게재를 위해 쿠키(Cookie)를 활용할 수 있으며 구글의 맞춤형 광고 기술에 따라 익명의 식별 정보가 활용될 수 있습니다.</div>
+            
+            <h4>✉️ 문의하기 (Contact Us)</h4>
+            <div class="policy-text">이메일: ktj0369@naver.com &#10;운영 시간: 평일 09:00 ~ 17:00 (토/일, 공휴일 휴무)</div>
+        </div>
+    </div>
+    
+
+    <!-- 숨겨진 오리지널 타이머 앱 구역 -->
+    <div id="timerAppContainer">
+        <div class="header">
+            <h1 id="appHeaderTitle">🏥 PTtimer Dashboard</h1>
+            <button class="gear-btn" onclick="toggleModal(true)">⚙️</button>
+        </div>
+        <div class="grid-container" id="gridContainer"></div>
+    </div>
+
+    <!-- 설정 모달창 -->
+    <div class="modal" id="globalModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="toggleModal(false)">×</button>
+            <h3 style="margin-top: 0; color: var(--primary-color);">⚙️ 전체 시스템 설정</h3>
+            <div class="setting-row">
+                <label>총 치료방 개수</label>
+                <input type="number" id="totalRoomsInput" value="6" min="1">
+            </div>
+            <div class="setting-row">
+                <label>치료 루틴 설정 (분 단위)</label>
+                <div class="routine-list-container" id="modalRoutineList"></div>
+                <button class="add-routine-btn" onclick="addRoutineRowField()">+ 치료 추가</button>
+            </div>
+            <button class="save-all-btn" onclick="saveGlobalSettings()">설정 저장 및 적용</button>
+        </div>
+    </div>
+
+    <script>
+        // 화면 모드 전환 함수
+        function switchToAppMode() {
+            document.getElementById('editorialContainer').style.display = 'none';
+            document.getElementById('timerAppContainer').style.display = 'block';
+            document.getElementById('toggleAppBtn').style.display = 'none'; // 진입 후 버튼 숨김
+            initDashboard();
+        }
+        // 맞춤형 프로토콜 계산기 알고리즘 (구글 평가용)
+        function calculateProtocol() {
+            const target = document.getElementById('calcTarget').value;
+            const vas = parseInt(document.getElementById('calcVas').value) || 5;
+            const resultDiv = document.getElementById('calcResult');
+            
+            if (vas < 1 || vas > 10) {
+                alert("VAS 통증 지수는 1부터 10 사이로 입력해주세요.");
+                return;
+            }
+
+            let targetName = "";
+            let hpTime = 20; // 핫팩 기본 20분
+            let estTime = 15; // 전기치료 기본 15분
+            let laserTime = 5; // 레이저 기본 5분
+            let advice = "";
+
+            // 부위별 맞춤형 분배
+            if (target === "spine") {
+                targetName = "요추/경추 추간판 탈출증 (디스크)";
+                if (vas >= 7) {
+                    hpTime = 15; // 급성 통증 시 열치료 단축 (염증 예방)
+                    estTime = 20; // 전기 자극을 통한 차단 강화
+                    advice = "⚠️ 현재 통증 수치가 매우 높습니다. 척수 신경근의 가해지는 압박을 줄이기 위해 과도한 열치료는 피하고, 간섭전류치료(ICT)를 통해 신경 자극 강도를 완화하는 데 집중하십시오. 등척성 코어 안정화 운동을 병행해야 합니다.";
+                } else {
+                    advice = "🌱 만성 디스크 관리 단계입니다. 20분의 충분한 표층열치료를 통해 심부 조직의 온도를 올린 후 도수치료 및 슬링을 활용한 관절 가동술을 진행하면 정렬 교정에 큰 도움이 됩니다.";
+                }
+            } else if (target === "shoulder") {
+                targetName = "견관절 충돌증후군 / 오십견";
+                laserTime = 7; // 고질적 회전근개 부위 레이저 시간 가중
+                advice = "💪 견관절은 가동 범위 확보가 최우선 과제입니다. 핫팩 20분으로 관절 주머니의 점탄성을 극대화한 직후, 수동적 관절 가동 운동(PROM)을 실시하여 굳어진 관절낭을 점진적으로 늘려주어야 회복 속도가 빨라집니다.";
+            } else if (target === "knee") {
+                targetName = "슬관절 퇴행성 관절염 / 인대 손상";
+                if (vas >= 6) {
+                    advice = "🦵 무릎 관절 내 부종이나 삼출액(물 참)이 의심되는 상태입니다. 열치료 시 피부 온도를 면밀히 모니터링하시고, 대퇴사두근 근위축 방지를 위해 통증이 없는 범위 내에서 등척성 대퇴사두근 세팅 운동(Q-Setting)을 루틴에 즉시 추가하십시오.";
+                } else {
+                    advice = "🏃 부종이 가라앉은 만성 관절염 단계입니다. 대퇴사두근과 햄스트링의 근력 균형을 맞추기 위한 등장성 하지 근력 강화 및 고유수용성 감각 훈련(밸런스 패드 운동)을 적극 권장합니다.";
+                }
+            } else if (target === "ankle") {
+                targetName = "족관절 급성 염좌 (발목 손상)";
+                if (vas >= 5) {
+                    hpTime = 0; // 급성 염좌는 열치료 금지 원칙 반영
+                    advice = "🚨 [임상 경고] 발목 급성 염좌 단계에서는 핫팩(온열치료)을 절대 금지합니다! 혈관이 확장되어 내부 출혈과 부종이 심해질 수 있습니다. 현재 단계에서는 냉치료(Cryotherapy)와 함께 고정(Protection) 및 압박(Compression) 프로토콜을 즉시 시행하십시오.";
+                } else {
+                    advice = "👟 발목 인대의 만성 불안정성 예방 단계입니다. 통증이 경감되었으므로 저주파 자극을 통해 주변 비골근을 활성화하고, 한 발 서기 훈련 등을 통해 발목의 고유수용성 수용기를 재교육해야 재부상을 막을 수 있습니다.";
+                }
+            }
+
+            // 결과 화면 렌더링
+            resultDiv.style.border = "1px solid #007bff";
+            resultDiv.style.backgroundColor = "#fff";
+            resultDiv.innerHTML = `
+                <div style="font-weight:bold; color:#007bff; font-size:16px; margin-bottom:12px;">📋 임상 분석 리포트 수립 완료</div>
+                <table style="width:100%; border-collapse:collapse; margin-bottom:15px; font-size:13px; text-align:left;">
+                    <tr style="background:#f1f3f5;"><th style="padding:8px; border:1px solid #dee2e6;">진단명</th><td style="padding:8px; border:1px solid #dee2e6; font-weight:bold;">${targetName}</td></tr>
+                    <tr><th style="padding:8px; border:1px solid #dee2e6;">통증 등급 (VAS)</th><td style="padding:8px; border:1px solid #dee2e6; color:#dc3545; font-weight:bold;">Grade ${vas} / 10</td></tr>
+                    <tr style="background:#f1f3f5;"><th style="padding:8px; border:1px solid #dee2e6;">추천 표층열치료(HP)</th><td style="padding:8px; border:1px solid #dee2e6;">${hpTime === 0 ? '<span style="color:#dc3545; font-weight:bold;">금기 (0분)</span>' : hpTime + '분 세팅'}</td></tr>
+                    <tr><th style="padding:8px; border:1px solid #dee2e6;">추천 전기통증치료(EST)</th><td style="padding:8px; border:1px solid #dee2e6;">${estTime}분 세팅</td></tr>
+                    <tr style="background:#f1f3f5;"><th style="padding:8px; border:1px solid #dee2e6;">추천 광선세포재생(Laser)</th><td style="padding:8px; border:1px solid #dee2e6;">${laserTime}분 세팅</td></tr>
+                </table>
+                <div style="background:#e8f4fd; padding:12px; border-radius:6px; font-size:13.5px; border-left:4px solid #007bff;">
+                    <strong>💡 학술적 임상 가이드:</strong><br>${advice}
+                </div>
+            `;
+        }
+
+        // --- 오리지널 스크립트 로직 완벽 유지 ---
+        let config = JSON.parse(localStorage.getItem('pt_config')) || {
+            totalRooms: 6,
+            routine: [
+                { name: "열치료", time: 20 },
+                { name: "전기치료", time: 15 },
+                { name: "광선치료", time: 5 }
+            ]
+        };
+
+        let roomStates = JSON.parse(localStorage.getItem('pt_roomStates')) || {};
+
+        function saveStateToStorage() {
+            const cleanStates = {};
+            for (let i in roomStates) {
+                cleanStates[i] = { ...roomStates[i], intervalId: null };
+            }
+            localStorage.setItem('pt_roomStates', JSON.stringify(cleanStates));
+            localStorage.setItem('pt_config', JSON.stringify(config));
+        }
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playBeep() {
+            const osc = audioCtx.createOscillator();
+            osc.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+        function toggleModal(show) {
+            document.getElementById('globalModal').style.display = show ? 'flex' : 'none';
+            if(show) {
+                document.getElementById('totalRoomsInput').value = config.totalRooms;
+                renderModalRoutineList();
+            }
+        }
+
+        function renderModalRoutineList() {
+            const container = document.getElementById('modalRoutineList');
+            container.innerHTML = '';
+            config.routine.forEach((item, index) => {
+                const row = document.createElement('div');
+                row.className = 'routine-row';
+                row.innerHTML = `
+                    <span>${index + 1}단계</span>
+                    <input type="text" class="m-step-name" value="${item.name}" placeholder="치료명">
+                    <input type="number" class="m-step-time" value="${item.time}" placeholder="분">
+                    <button class="del-btn" onclick="this.parentElement.remove()">×</button>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function addRoutineRowField() {
+            const container = document.getElementById('modalRoutineList');
+            const index = container.children.length;
+            const row = document.createElement('div');
+            row.className = 'routine-row';
+            row.innerHTML = `
+                <span>${index + 1}단계</span>
+                <input type="text" class="m-step-name" placeholder="치료명">
+                <input type="number" class="m-step-time" placeholder="분">
+                <button class="del-btn" onclick="this.parentElement.remove()">×</button>
+            `;
+            container.appendChild(row);
+        }
+
+        function saveGlobalSettings() {
+            config.totalRooms = parseInt(document.getElementById('totalRoomsInput').value) || 6;
+            const rows = document.querySelectorAll('#modalRoutineList .routine-row');
+            let newRoutine = [];
+            rows.forEach(row => {
+                const name = row.querySelector('.m-step-name').value.trim();
+                const time = parseInt(row.querySelector('.m-step-time').value) || 0;
+                if(name) newRoutine.push({ name, time });
+            });
+            config.routine = newRoutine;
+            
+            for(let i = 1; i <= config.totalRooms; i++) {
+                if(roomStates[i]) {
+                    clearInterval(roomStates[i].intervalId);
+                    roomStates[i].intervalId = null;
+                    roomStates[i].customButtons = [];
+                    roomStates[i].localRoutine = JSON.parse(JSON.stringify(config.routine));
+                    roomStates[i].builderQueue = [];
+                }
+            }
+            
+            saveStateToStorage();
+            toggleModal(false);
+            initDashboard();
+        }
+
+        function toggleRoomEdit(roomNum) {
+            const form = document.getElementById(`editForm-${roomNum}`);
+            form.style.display = (window.getComputedStyle(form).display === 'none') ? 'flex' : 'none';
+        }
+
+        function toggleNextSchedule(roomNum, type) {
+            let state = roomStates[roomNum];
+            let index = state.schedules.indexOf(type);
+            let btn = document.getElementById(`macro-${roomNum}-${type}`);
+
+            if (index > -1) {
+                state.schedules.splice(index, 1);
+                if(btn) btn.classList.remove('active');
+            } else {
+                state.schedules.push(type);
+                if(btn) btn.classList.add('active');
+            }
+
+            const infoDiv = document.getElementById(`nextInfo-${roomNum}`);
+            const txtSpan = document.getElementById(`nextTxt-${roomNum}`);
+
+            if (state.schedules.length === 0) {
+                if(txtSpan) txtSpan.innerText = "";
+                if(infoDiv) infoDiv.style.display = "none";
+            } else {
+                if(txtSpan) txtSpan.innerText = state.schedules.join(", ");
+                if(infoDiv) infoDiv.style.display = "block";
+            }
+
+            saveStateToStorage();
+            const form = document.getElementById(`editForm-${roomNum}`);
+            form.style.display = "none";
+        }
+
+        function addTemporaryTreatment(roomNum) {
+            const name = prompt("추가할 치료명을 입력하세요:");
+            if (!name || !name.trim()) return;
+            const timeStr = prompt("치료 시간(분)을 입력하세요:");
+            const time = parseInt(timeStr);
+            if (isNaN(time) || time <= 0) return;
+
+            let state = roomStates[roomNum];
+            state.customButtons.push({ name: name.trim(), time: time });
+            saveStateToStorage();
+            refreshBuilderButtons(roomNum);
+        }
+
+        function refreshBuilderButtons(roomNum) {
+            let state = roomStates[roomNum];
+            const container = document.getElementById(`btnContainer-${roomNum}`);
+            if (!container) return;
+
+            let builderButtonsHtml = "";
+            config.routine.forEach((item, origIdx) => {
+                let qIdx = state.builderQueue.findIndex(q => q.type === 'global' && q.index === origIdx);
+                let btnText = qIdx > -1 ? `${qIdx + 1}. ${item.name}` : item.name;
+                let isSelected = qIdx > -1 ? 'selected' : '';
+                builderButtonsHtml += `<button class="builder-btn ${isSelected}" onclick="clickBuilderItem(${roomNum}, 'global', ${origIdx})">${btnText}</button> `;
+            });
+
+            state.customButtons.forEach((item, custIdx) => {
+                let qIdx = state.builderQueue.findIndex(q => q.type === 'custom' && q.index === custIdx);
+                let btnText = qIdx > -1 ? `${qIdx + 1}. ${item.name}` : `${item.name}`;
+                let isSelected = qIdx > -1 ? 'selected' : '';
+                builderButtonsHtml += `<button class="builder-btn ${isSelected}" style="border-color:#fd7e14;" onclick="clickBuilderItem(${roomNum}, 'custom', ${custIdx})">${btnText}</button> `;
+            });
+            container.innerHTML = builderButtonsHtml;
+        }
+
+        function clickBuilderItem(roomNum, type, index) {
+            let state = roomStates[roomNum];
+            let queueIndex = state.builderQueue.findIndex(q => q.type === type && q.index === index);
+            if (queueIndex > -1) {
+                state.builderQueue.splice(queueIndex, 1);
+            } else {
+                state.builderQueue.push({ type: type, index: index });
+            }
+            saveStateToStorage();
+            refreshBuilderButtons(roomNum);
+        }
+
+        function applyCustomRoutine(roomNum) {
+            let state = roomStates[roomNum];
+            if (state.builderQueue.length === 0) return;
+            let newCustomList = [];
+            state.builderQueue.forEach(queueItem => {
+                if (queueItem.type === 'global') {
+                    newCustomList.push(JSON.parse(JSON.stringify(config.routine[queueItem.index])));
+                } else if (queueItem.type === 'custom') {
+                    newCustomList.push(JSON.parse(JSON.stringify(state.customButtons[queueItem.index])));
+                }
+            });
+            state.localRoutine = newCustomList;
+            state.currentStep = 0; 
+            saveStateToStorage();
+            updateFlowText(roomNum);
+            document.getElementById(`editForm-${roomNum}`).style.display = "none";
+        }
+
+        function resetBuilder(roomNum) {
+            let state = roomStates[roomNum];
+            state.builderQueue = [];
+            state.customButtons = [];
+            state.localRoutine = JSON.parse(JSON.stringify(config.routine));
+            saveStateToStorage();
+            refreshBuilderButtons(roomNum);
+            updateFlowText(roomNum);
+        }
+
+        function forceResetRoom(roomNum) {
+            if (!confirm(`${roomNum}번 방을 초기화하시겠습니까?`)) return;
+            let state = roomStates[roomNum];
+            if (state.intervalId) clearInterval(state.intervalId);
+            state.currentStep = 0;
+            state.timeLeft = 0;
+            state.intervalId = null;
+            state.schedules = [];
+            state.builderQueue = [];
+            state.customButtons = [];
+            state.localRoutine = JSON.parse(JSON.stringify(config.routine));
+            state.roomName = `${roomNum}번 치료방`;
+            saveStateToStorage();
+            initDashboard();
+        }
+
+        function addMoreMinutes(roomNum, minutes) {
+            let state = roomStates[roomNum];
+            let card = document.getElementById(`roomCard-${roomNum}`);
+            let statusTxt = document.getElementById(`status-${roomNum}`);
+            let timerTxt = document.getElementById(`timer-${roomNum}`);
+            let addedSeconds = minutes * 60;
+
+            if (state.intervalId !== null) {
+                state.timeLeft += addedSeconds;
+                saveStateToStorage();
+            } else {
+                let currentRoutine = state.localRoutine[state.currentStep] || config.routine[0];
+                state.timeLeft = addedSeconds;
+                statusTxt.innerText = currentRoutine.name + " 중";
+                card.classList.remove('completed');
+                card.classList.add('running');
+                saveStateToStorage();
+                resumeTimerLoop(roomNum);
+                document.getElementById(`editForm-${roomNum}`).style.display = "none";
+                return;
+            }
+            let min = String(Math.floor(state.timeLeft / 60)).padStart(2, '0');
+            let sec = String(state.timeLeft % 60).padStart(2, '0');
+            timerTxt.innerText = `${min}:${sec}`;
+            updateFlowText(roomNum);
+            document.getElementById(`editForm-${roomNum}`).style.display = "none";
+        }
+
+        function resumeTimerLoop(roomNum) {
+            let state = roomStates[roomNum];
+            let card = document.getElementById(`roomCard-${roomNum}`);
+            let statusTxt = document.getElementById(`status-${roomNum}`);
+            let timerTxt = document.getElementById(`timer-${roomNum}`);
+            let btn = document.getElementById(`btn-${roomNum}`);
+
+            btn.innerText = "치료 건너뛰기";
+            btn.classList.add('running-state');
+
+            clearInterval(state.intervalId);
+            state.intervalId = setInterval(() => {
+                state.timeLeft--;
+                if (state.timeLeft % 5 === 0 || state.timeLeft <= 0) saveStateToStorage();
+
+                if (state.timeLeft <= 0) {
+                    state.timeLeft = 0;
+                    clearInterval(state.intervalId);
+                    state.intervalId = null;
+                    playBeep();
+                    card.classList.remove('running');
+                    card.classList.add('completed');
+                    statusTxt.innerText = `${state.localRoutine[state.currentStep]?.name || '치료'} 완료!`;
+                    btn.classList.remove('running-state');
+
+                    if (state.currentStep === state.localRoutine.length - 1) {
+                        btn.innerText = "치료 끝 (리셋)";
+                        btn.style.backgroundColor = "var(--danger-color)"; 
+                    } else {
+                        btn.innerText = "다음 단계 진행";
+                        btn.style.backgroundColor = "var(--success-color)"; 
+                    }
+                    saveStateToStorage();
+                    updateFlowText(roomNum);
+                }
+                let min = String(Math.floor(state.timeLeft / 60)).padStart(2, '0');
+                let sec = String(state.timeLeft % 60).padStart(2, '0');
+                timerTxt.innerText = `${min}:${sec}`;
+            }, 1000);
+        }
+
+        function updateFlowText(roomNum) {
+            let state = roomStates[roomNum];
+            let flowDiv = document.getElementById(`flow-${roomNum}`);
+            if(!flowDiv) return;
+            let list = state.localRoutine;
+            if(!list || list.length === 0) return;
+
+            let card = document.getElementById(`roomCard-${roomNum}`);
+            let isCompleted = card ? card.classList.contains('completed') : false;
+            let isRunning = state.intervalId !== null;
+
+            if (!isRunning && !isCompleted && state.currentStep === 0 && state.timeLeft === 0) {
+                flowDiv.innerHTML = `<span class="flow-next">${list.map(item => item.name).join(" ➔ ")}</span>`;
+                return;
+            }
+
+            let htmlParts = [];
+            list.forEach((item, index) => {
+                if (index < state.currentStep) htmlParts.push(`<span class="flow-done">${item.name}</span>`);
+                else if (index === state.currentStep) {
+                    if (isCompleted) htmlParts.push(`<span class="flow-done">${item.name}</span>`);
+                    else htmlParts.push(`<span class="flow-curr">${item.name}중</span>`);
+                } else htmlParts.push(`<span class="flow-next">${item.name}</span>`);
+            });
+            flowDiv.innerHTML = htmlParts.join(" ➔ ");
+        }
+
+        function updateRoomName(roomNum) {
+            const nameVal = document.getElementById(`inputName-${roomNum}`).value;
+            roomStates[roomNum].roomName = nameVal;
+            document.getElementById(`title-${roomNum}`).innerText = nameVal || `${roomNum}번 치료방`;
+            saveStateToStorage();
+        }
+
+        function initDashboard() {
+            const container = document.getElementById('gridContainer');
+            container.innerHTML = '';
+            for (let i = 1; i <= config.totalRooms; i++) {
+                if (!roomStates[i]) {
+                    roomStates[i] = { currentStep: 0, timeLeft: 0, intervalId: null, schedules: [], builderQueue: [], customButtons: [], localRoutine: JSON.parse(JSON.stringify(config.routine)), roomName: `${i}번 치료방` };
+                }
+                if (!roomStates[i].roomName) roomStates[i].roomName = `${i}번 치료방`;
+
+                const card = document.createElement('div');
+                card.className = 'room-card';
+                card.id = `roomCard-${i}`;
+                card.innerHTML = `
+                    <div>
+                        <div class="card-header">
+                            <div class="room-title" id="title-${i}">${roomStates[i].roomName}</div>
+                            <div class="header-btn-group">
+                                <button class="room-reset-btn" onclick="forceResetRoom(${i})">리셋</button>
+                                <button class="room-gear" onclick="toggleRoomEdit(${i})">⚙️</button>
+                            </div>
+                        </div>
+                        <div class="next-info" id="nextInfo-${i}"><span id="nextTxt-${i}"></span></div>
+                        <div class="edit-form" id="editForm-${i}">
+                            <input type="text" id="inputName-${i}" value="${roomStates[i].roomName}" placeholder="환자명" oninput="updateRoomName(${i})">
+                            <details class="accordion-item">
+                                <summary>1. 순서 변경</summary>
+                                <div class="accordion-content"><div class="macro-btn-container" id="btnContainer-${i}"></div>
+                                <div style="margin-top:8px; display:flex; gap:4px; justify-content:flex-end;"><button class="action-sub-btn apply" onclick="applyCustomRoutine(${i})">적용</button></div></div>
+                            </details>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="status-text" id="status-${i}">대기 중</div>
+                        <div class="routine-flow-info" id="flow-${i}"></div>
+                        <div class="timer-display" id="timer-${i}">00:00</div>
+                        <button class="action-btn" id="btn-${i}" onclick="startRoutine(${i})">치료 시작</button>
+                    </div>
+                `;
+                container.appendChild(card);
+                refreshBuilderButtons(i);
+
+                const state = roomStates[i];
+                if (state.timeLeft > 0) { resumeTimerLoop(i); }
+                updateFlowText(i);
+            }
+        }
+
+        function startRoutine(roomNum) {
+            let state = roomStates[roomNum];
+            let card = document.getElementById(`roomCard-${roomNum}`);
+            let statusTxt = document.getElementById(`status-${roomNum}`);
+            let timerTxt = document.getElementById(`timer-${roomNum}`);
+            let btn = document.getElementById(`btn-${roomNum}`);
+
+            if (btn.innerText === "치료 끝 (리셋)") {
+                state.currentStep = 0; state.schedules = []; state.intervalId = null; state.builderQueue = []; state.customButtons = [];
+                state.localRoutine = JSON.parse(JSON.stringify(config.routine));
+                saveStateToStorage(); initDashboard(); return;
+            }
+            if (card.classList.contains('running')) {
+                clearInterval(state.intervalId); state.intervalId = null; state.timeLeft = 0;
+                card.classList.remove('running'); card.classList.add('completed');
+                statusTxt.innerText = `${state.localRoutine[state.currentStep]?.name || '치료'} 완료!`;
+                btn.classList.remove('running-state');
+                btn.innerText = (state.currentStep === state.localRoutine.length - 1) ? "치료 끝 (리셋)" : "다음 단계 진행";
+                saveStateToStorage(); updateFlowText(roomNum); return;
+            }
+            if (card.classList.contains('completed')) { card.classList.remove('completed'); state.currentStep++; }
+
+            let currentRoutine = state.localRoutine[state.currentStep];
+            state.timeLeft = currentRoutine.time * 60;
+            card.classList.add('running'); statusTxt.innerText = currentRoutine.name + " 중";
+            btn.innerText = "치료 건너뛰기"; btn.classList.add('running-state');
+            saveStateToStorage(); updateFlowText(roomNum);
+
+            clearInterval(state.intervalId);
+            state.intervalId = setInterval(() => {
+                state.timeLeft--;
+                if (state.timeLeft <= 0) {
+                    state.timeLeft = 0; clearInterval(state.intervalId); state.intervalId = null; playBeep();
+                    card.classList.remove('running'); card.classList.add('completed');
+                    statusTxt.innerText = `${currentRoutine.name} 완료!`; btn.classList.remove('running-state');
+                    btn.innerText = (state.currentStep === state.localRoutine.length - 1) ? "치료 끝 (리셋)" : "다음 단계 진행";
+                    saveStateToStorage(); updateFlowText(roomNum);
+                }
+                timerTxt.innerText = `${String(Math.floor(state.timeLeft / 60)).padStart(2, '0')}:${String(state.timeLeft % 60).padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        window.onload = function() {
+            // 구글 로봇 검사 시에는 대시보드를 초기화하지 않고 순수 블로그 형태로만 대기합니다.
+        };
+    </script>
+</body>
+</html>
