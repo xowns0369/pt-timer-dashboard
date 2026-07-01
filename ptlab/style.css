@@ -1,0 +1,320 @@
+/* 기본 초기화 */
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+}
+
+body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    background: #f1f3f4; 
+    padding: 15px; 
+    color: #333; 
+    height: 100vh; 
+    display: flex; 
+    flex-direction: column; 
+    overflow: hidden; 
+}
+
+/* 🏥 상단 내비게이션 바 */
+.top-navbar { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    background: #fff; 
+    padding: 12px 20px; 
+    border: 1px solid #dadce0; 
+    border-radius: 6px; 
+    margin-bottom: 15px; 
+    flex-shrink: 0; 
+}
+.top-navbar h2 { font-size: 18px; color: #1a73e8; }
+.btn-setup-trigger { 
+    background: #e2efda; color: #375623; border: 1px solid #a9d18e; 
+    padding: 8px 16px; font-weight: bold; border-radius: 4px; cursor: pointer; 
+}
+
+/* 📦 엑셀식 일체형 틀고정 스크롤 바구니 */
+.grid-wrapper {
+    flex-grow: 1;
+    overflow-y: auto;  
+    overflow-x: auto;  
+    background: #fff;
+    border: 1px solid #bcbcbc;
+}
+
+/* 전체 표 컨테이너 (너비는 셀 개수에 맞게 유연하게 늘어남) */
+.excel-container {
+    display: flex;
+    flex-direction: column;
+    width: max-content;
+}
+
+/* ==========================================================
+   📐 엑셀 격자 레이아웃 정밀 정의 (가로 1줄 단위 배치 핵심)
+   ========================================================== */
+
+/* 1) 최상단 치료사 이름 헤더 행 */
+.excel-header-row {
+    display: flex;
+    position: sticky;
+    top: 0;
+    z-index: 60;
+    background: #fff;
+    height: 38px;
+}
+
+/* 2) 두번째 환자이름/치료 서브헤더 행 */
+.excel-sub-header-row {
+    display: flex;
+    position: sticky;
+    top: 38px; /* 최상단 헤더 바로 아래 고정 */
+    z-index: 49;
+    background: #f2f2f2;
+    height: 28px;
+    border-bottom: 2px solid #7f7f7f;
+}
+
+/* 3) 본문 데이터 가로 줄 (Row 1, Row 2...) */
+.excel-data-row {
+    display: flex;
+    height: 42px; /* 💡 가로 모든 셀의 높이를 완벽 일치시킴 */
+    border-bottom: 1px solid #bcbcbc;
+    background: #fff;
+}
+
+/* ==========================================================
+   🧩 격자 셀(Cell) 공통 스타일 정의
+   ========================================================== */
+
+/* A열: 좌측 고정 접수 번호 칸 */
+.cell-number {
+    position: sticky;
+    left: 0;
+    z-index: 55; /* 가로 스크롤 시 최상위 고정 */
+    width: 45px;
+    min-width: 45px;
+    background: #d9d9d9 !important; 
+    font-size: 11px;
+    font-weight: bold;
+    color: #444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 2px solid #7f7f7f; 
+    border-bottom: 1px solid #bcbcbc;
+    user-select: none;
+}
+
+/* 💡 [핵심 추가] 최상단 헤더 행 내부와 서브 헤더 행 내부에 있는 cell-number에 top 고정값 부여 */
+.excel-header-row .cell-number {
+    top: 0;
+    z-index: 70; /* 👑 세로/가로 스크롤이 교차하는 왼쪽 위 구석 칸을 최상위 레이어로 고정 */
+}
+
+.excel-sub-header-row .cell-number {
+    top: 38px;   /* 메인 헤더 높이(38px) 만큼 내려서 고정 */
+    z-index: 69; 
+    border-bottom: 2px solid #7f7f7f;
+}
+
+/* 일반 치료사 마스터 헤더 셀 */
+.cell-master-header {
+    width: 380px; /* 치료사 1인당 가로 확보 공간 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #d9ead3; /* 연록색 */
+    color: #274e13;
+    font-weight: bold;
+    font-size: 13px;
+    border-right: 3px solid #7f7f7f; /* 💡 치료사 간 간격을 굵은 선으로 구분 */
+    border-bottom: 1px solid #bcbcbc;
+}
+
+/* 환자 이름 칸 너비 (380px 중 110px 차지) */
+.cell-patient {
+    width: 110px;
+    min-width: 110px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    border-right: 1px solid #bcbcbc;
+}
+
+/* 치료 버튼 칸 너비 (380px 중 270px 차지) */
+.cell-treatment {
+    width: 270px;
+    min-width: 270px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    /* 💡 치료사 블록의 마지막 경계선이므로 굵은 선 처리 */
+    border-right: 3px solid #7f7f7f; 
+}
+
+/* 서브 헤더 내부 텍스트 정렬용 */
+.sub-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: bold;
+    height: 100%;
+    background: #f2f2f2;
+}
+
+/* ==========================================================
+   휭스크롤 박스 및 인풋 제어
+   ========================================================== */
+.input-patient-cell {
+    width: 100%; height: 100%; border: none; padding: 0 8px;
+    font-size: 14px; font-weight: bold; color: #1f4e79; background: transparent; outline: none;
+}
+.input-patient-cell:focus {
+    background: #fff; outline: 2px solid #217346 !important; /* 엑셀 초록 포커스 */
+}
+
+/* 1. 환자 이름 입력창에 취소선 긋고 글자 흐리게 변경 */
+.cell-patient.individual-done .input-patient-cell {
+    text-decoration: line-through !important;
+    color: #aaaaaa !important;
+    font-weight: normal !important;
+}
+
+/* 치료 버튼 그룹 내 가로 스크롤 완전 방어 */
+.treatment-box-group {
+    display: flex; gap: 3px; align-items: center;
+    width: 100%; height: 100%; overflow-x: auto; flex-wrap: nowrap; padding: 0 5px;
+}
+.treatment-box-group::-webkit-scrollbar { height: 3px; }
+.treatment-box-group::-webkit-scrollbar-thumb { background: #dbdbdb; border-radius: 2px; }
+
+.btn-action-cell {
+    background: #fff; border: 1px solid #7f7f7f; padding: 2px 5px;
+    font-size: 10px; font-weight: bold; cursor: pointer; border-radius: 2px;
+    min-width: 36px; white-space: nowrap; text-align: center; flex-shrink: 0;
+}
+.btn-action-cell.running { background: #fff2cc; color: #b25900; border-color: #ffc000; animation: pulse 2s infinite; }
+.btn-action-cell.active-done { background: #bfbfbf; color: #000000; text-decoration: line-through; border-color: #a6a6a6; }
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(255,192,0, 0.4); }
+    70% { box-shadow: 0 0 0 5px rgba(255,192,0, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255,192,0, 0); }
+}
+
+/* 🎛️ 모달창 공통 */
+.modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; justify-content:center; align-items:center; z-index:1000; }
+.modal-content { background:#fff; width:450px; border-radius:6px; display:flex; flex-direction:column; overflow:hidden; }
+.modal-header { padding:12px 20px; background:#f1f3f4; border-bottom:1px solid #dadce0; display:flex; justify-content:between; align-items:center; }
+.btn-close { background:none; border:none; font-size:18px; cursor:pointer; }
+.modal-body { padding:20px; max-height:400px; overflow-y:auto; }
+.setup-section { margin-bottom:20px; padding-bottom:15px; border-bottom:1px solid #eee; }
+.setup-section h4 { margin-bottom:8px; font-size:14px; }
+.setup-desc { font-size:11px; color:#70757a; margin-bottom:8px; }
+.tag-container { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:10px; min-height:34px; padding:4px; background:#f8f9fa; border:1px solid #eee; }
+.tag-chip { background:#e8f0fe; color:#1a73e8; padding:4px 8px; border-radius:12px; font-size:12px; font-weight:bold; display:inline-flex; align-items:center; }
+.tag-chip .remove-tag { margin-left:6px; color:#ea4335; cursor:pointer; }
+.input-group { display:flex; gap:4px; }
+.input-group input { padding:6px; border:1px solid #dadce0; border-radius:4px; }
+.input-group button { background:#1a73e8; color:#fff; border:none; padding:6px 12px; cursor:pointer; border-radius:4px; font-weight:bold; }
+.modal-footer { padding:10px 20px; background:#f1f3f4; text-align:right; border-top:1px solid #dadce0; }
+.btn-save { background:#28a745; color:#fff; border:none; padding:8px 16px; font-weight:bold; cursor:pointer; border-radius:4px; }
+/*기존 스타일에 아래 내용을 추가 및 보정하세요*/
+
+/* 🔑 로그인 화면 전체 배경 바구니 */
+.login-wrapper {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(135deg, #e2efda 0%, #c9daf8 100%);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 2000;
+}
+
+/* 로그인 화이트 카드 박스 */
+.login-card {
+    background: #ffffff;
+    padding: 35px 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    width: 400px;
+    text-align: center;
+}
+.login-card h2 { color: #1a73e8; margin-bottom: 8px; font-size: 22px; }
+.login-subtitle { font-size: 13px; color: #666; margin-bottom: 25px; }
+
+/* 큰 버튼 스타일 */
+.login-main-btns { display: flex; flex-direction: column; gap: 12px; }
+.btn-login-action {
+    padding: 14px; font-size: 15px; font-weight: bold; border: none;
+    border-radius: 6px; cursor: pointer; transition: all 0.2s;
+}
+.btn-login-action.create { background: #217346; color: #fff; }
+.btn-login-action.create:hover { background: #1a5c38; }
+.btn-login-action.join { background: #1a73e8; color: #fff; }
+.btn-login-action.join:hover { background: #155cb4; }
+
+/* 인풋 입력창 그룹 */
+.login-form-area h3 { font-size: 16px; margin-bottom: 15px; color: #333; text-align: left; border-left: 4px solid #1a73e8; padding-left: 8px;}
+.login-input-group { text-align: left; margin-bottom: 15px; }
+.login-input-group label { display: block; font-size: 11px; font-weight: bold; color: #555; margin-bottom: 5px; }
+.login-input-group input { width: 100%; padding: 10px; border: 1px solid #bcbcbc; border-radius: 4px; font-size: 14px; outline: none; }
+.login-input-group input:focus { border-color: #1a73e8; box-shadow: 0 0 4px rgba(26,115,232,0.3); }
+
+/* 하부 폼 버튼 제어 */
+.form-btn-group { display: flex; gap: 8px; margin-top: 20px; }
+.btn-back { flex: 1; padding: 10px; background: #eeeeee; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; font-weight: bold;}
+.btn-submit { flex: 2; padding: 10px; background: #1a73e8; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;}
+
+/* 메인 대시보드 감싸기 */
+.dashboard-wrapper {
+    display: flex; flex-direction: column; height: 100vh; overflow: hidden;
+}
+/* ==========================================================
+   🚀 PTLab 미래 서비스 적재를 위한 예약 공간 스타일
+   ========================================================== */
+
+/* 1. 전체 화면 구조 조정 (하단 배너 공간만큼 전체 바디에 여백을 주어 테이블 가림 방지) */
+body {
+    margin-bottom: 45px !important; /* 배너 높이만큼 밑에 여백을 강제로 줌 */
+}
+
+/* 2. 하단 고정 배너 스타일 */
+#ptlab-bottom-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 40px; /* 너무 두껍지 않게 40px로 지정 */
+    background: #2c3e50; /* 신뢰감을 주는 네이비/다크그레이 톤 */
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.15);
+    z-index: 9999; /* 테이블 스크롤보다 무조건 위에 오도록 설정 */
+    box-sizing: border-box;
+}
+
+/* 배너 내부 텍스트 및 링크 스타일 */
+.banner-content {
+    font-weight: 500;
+    letter-spacing: -0.5px;
+}
+
+.banner-link {
+    margin-left: 15px;
+    background: #e74c3c; /* 시선을 끄는 포인트 색상 (빨간색 계열) */
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.banner-link:hover {
+    background: #c0392b;
+}
